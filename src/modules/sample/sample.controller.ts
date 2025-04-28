@@ -1,6 +1,6 @@
-import type { NextFunction, Request, Response } from "express";
-import { injectable } from "tsyringe";
+import { NextFunction, Request, Response } from "express";
 import { SampleService } from "./sample.service";
+import { injectable } from "tsyringe";
 
 @injectable()
 export class SampleController {
@@ -11,7 +11,7 @@ export class SampleController {
   getSamples = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const result = await this.sampleService.getSamples();
-      res.status(200).send(result);
+      res.send(result);
     } catch (error) {
       next(error);
     }
@@ -34,11 +34,8 @@ export class SampleController {
   };
   updateSample = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const result = await this.sampleService.updateSample(
-        Number(req.params.id),
-        req.body
-      );
-
+      const id = Number(req.params.id);
+      const result = await this.sampleService.updateSample(id, req.body);
       res.status(200).send(result);
     } catch (error) {
       next(error);
@@ -46,9 +43,8 @@ export class SampleController {
   };
   deleteSample = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const result = await this.sampleService.deleteSample(
-        Number(req.params.id)
-      );
+      const id = Number(req.params.id);
+      const result = await this.sampleService.deleteSample(id);
       res.status(200).send(result);
     } catch (error) {
       next(error);
