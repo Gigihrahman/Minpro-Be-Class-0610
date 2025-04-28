@@ -1,33 +1,35 @@
 import { Router } from "express";
-import { injectable } from "tsyringe";
 import { SampleController } from "./sample.controller";
-import { validateBody } from "./../../middlewares/validation.middleware";
+import { injectable } from "tsyringe";
 import { CreateSampleDTO } from "./dto/create-sample.dto";
+import { validateBody } from "../../middlewares/validation.middleware";
 import { UpdateSampleDTO } from "./dto/update-sample.dto";
+
 @injectable()
 export class SampleRouter {
   private router: Router;
-  private SampleController: SampleController;
+  private sampleController: SampleController;
   constructor(SampleController: SampleController) {
     this.router = Router();
-    this.SampleController = SampleController;
-    this.initializeRoutes();
+    this.sampleController = SampleController;
+    this.initialzeRouter();
   }
-  private initializeRoutes = () => {
-    this.router.get("/", this.SampleController.getSamples);
-    this.router.get("/:id", this.SampleController.getSample);
+  private initialzeRouter() {
+    this.router.get("/", this.sampleController.getSamples);
+    this.router.get("/:id", this.sampleController.getSample);
     this.router.post(
       "/",
       validateBody(CreateSampleDTO),
-      this.SampleController.createSample
+      this.sampleController.createSample
     );
     this.router.patch(
       "/:id",
       validateBody(UpdateSampleDTO),
-      this.SampleController.updateSample
+      this.sampleController.updateSample
     );
-    this.router.delete("/:id", this.SampleController.deleteSample);
-  };
+    this.router.delete("/:id", this.sampleController.deleteSample);
+  }
+
   getRouter() {
     return this.router;
   }
