@@ -149,12 +149,12 @@ export class AuthService {
 
     const tokenPayload = { id: user.id, role: user.role };
 
-    const token = sign(tokenPayload, JWT_SECRET_KEY!, {
+    const accessToken = sign(tokenPayload, JWT_SECRET_KEY!, {
       expiresIn: "2h",
     });
     const { password: pw, ...userWithoutPassword } = user;
 
-    return { ...userWithoutPassword, token };
+    return { ...userWithoutPassword, accessToken };
   };
 
   forgotPassword = async (body: ForgotPasswordDTO) => {
