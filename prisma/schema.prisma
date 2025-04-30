@@ -210,7 +210,6 @@ model Users {
   password            String
   profilePicture      String?
   phoneNumber         String
-  tokenreset          String?
   role                Role                @default(USER)
   referalCode         String
   createdAt           DateTime            @default(now())
@@ -308,9 +307,9 @@ model Organizer {
   profilePicture String?
   phoneNumber    String
   npwp           String
-  accNumber      Int?
-  bankName       String?
-  isVerified     Boolean    @default(false)
+  bankName       BankName
+  norek          Int
+  isVerified     DateTime?
   createdAt      DateTime   @default(now())
   updatedAt      DateTime   @updatedAt
   deletedAt      DateTime?
@@ -318,4 +317,10 @@ model Organizer {
   vouchers       Vouchers[]
 
   @@map("organizers")
+}
+
+enum BankName {
+  BCA
+  BRI
+  BNI
 }
