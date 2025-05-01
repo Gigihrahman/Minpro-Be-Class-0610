@@ -24,37 +24,40 @@ model Sample {
 }
 
 model Events {
-  id             Int        @id @default(autoincrement())
+  id             Int            @id @default(autoincrement())
   categoryId     Int
-  category       Categories @relation(fields: [categoryId], references: [id])
+  category       Categories     @relation(fields: [categoryId], references: [id])
   organizerId    Int
-  organizer      Organizer  @relation(fields: [organizerId], references: [id])
+  organizer      Organizer      @relation(fields: [organizerId], references: [id])
   cityId         Int
-  city           City       @relation(fields: [cityId], references: [id])
+  city           City           @relation(fields: [cityId], references: [id])
   locationDetail String
   name           String
-  image          String
-  description    String     @db.Text
-  startEvent     DateTime   @default(now())
+  thumbnail      String         @db.Text
+  description    String         @db.Text
+  content        String         @db.Text
+  startEvent     DateTime       @default(now())
   endEvent       DateTime
   slug           String
-  createdAt      DateTime   @default(now())
-  updatedAt      DateTime   @updatedAt
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
   deletedAt      DateTime?
   seats          Seats[]
   vouchers       Vouchers[]
   reviews        Reviews[]
+  Transactions   Transactions[]
 
   @@map("events")
 }
 
 model Categories {
-  id          Int      @id @default(autoincrement())
-  name        String
-  description String   @db.Text
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  events      Events[]
+  id        Int      @id @default(autoincrement())
+  name      String
+  slug      String
+  iconUrl   String   @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  events    Events[]
 
   @@map("categories")
 }
@@ -62,6 +65,7 @@ model Categories {
 model City {
   id        Int      @id @default(autoincrement())
   name      String
+  slug      String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   events    Events[]
@@ -92,7 +96,7 @@ model Payments {
   transactionId   Int
   transaction     Transactions @relation(fields: [transactionId], references: [id])
   paymentMethod   String
-  paymentProofUrl String
+  paymentProofUrl String       @db.Text
   createdAt       DateTime     @default(now())
   updatedAt       DateTime     @updatedAt
 
@@ -105,6 +109,8 @@ model Transactions {
   userId            Int
   voucher_amount    Int?
   voucherId         Int?
+  eventId           Int
+  event             Events              @relation(fields: [eventsId], references: [id])
   voucher           Vouchers?           @relation(fields: [voucherId], references: [id])
   coupoun_amount    Int?
   couponId          Int?
@@ -118,11 +124,13 @@ model Transactions {
   detailTransaction DetailTransaction[]
   points            Points?             @relation(fields: [pointsId], references: [id])
   pointsId          Int?
+  eventsId          Int
 
   @@map("transactions")
 }
 
 enum TransactionStatus {
+  CREATED
   WAITING_FOR_PAYMENT
   WAITING_FOR_ADMIN_CONFIRMATION
   DONE
@@ -166,31 +174,6 @@ model Seats {
   @@map("seats")
 }
 
-model NotificationsUser {
-  id              Int           @id @default(autoincrement())
-  usersId         Int
-  user            Users         @relation(fields: [usersId], references: [id])
-  notificationsId Int
-  notifications   Notifications @relation(fields: [notificationsId], references: [id])
-  isRead          Boolean       @default(false)
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
-
-  @@map("notifications_user")
-}
-
-model Notifications {
-  id                 Int                 @id @default(autoincrement())
-  userId             Int
-  user               Users               @relation(fields: [userId], references: [id])
-  message            String
-  createdAt          DateTime            @default(now())
-  updatedAt          DateTime            @updatedAt
-  notificationsUsers NotificationsUser[]
-
-  @@map("notifications")
-}
-
 model Referrals {
   id             Int      @id @default(autoincrement())
   refererUserId  Int
@@ -204,26 +187,24 @@ model Referrals {
 }
 
 model Users {
-  id                  Int                 @id @default(autoincrement())
+  id                  Int         @id @default(autoincrement())
   fullName            String
-  email               String              @unique
+  email               String      @unique
   password            String
   profilePicture      String?
   phoneNumber         String
-  role                Role                @default(USER)
+  role                Role        @default(USER)
   referalCode         String
-  createdAt           DateTime            @default(now())
-  updatedAt           DateTime            @updatedAt
+  createdAt           DateTime    @default(now())
+  updatedAt           DateTime    @updatedAt
   deletedAt           DateTime?
   coupons             Coupons[]
-  notifications       Notifications[]
-  referralsAsReferer  Referrals[]         @relation("RefererRel")
-  referralsAsReferred Referrals[]         @relation("ReferredRel")
+  referralsAsReferer  Referrals[] @relation("RefererRel")
+  referralsAsReferred Referrals[] @relation("ReferredRel")
   points              Points[]
   reviews             Reviews[]
   tickets             Tickets[]
   organizer           Organizer[]
-  notificationsUsers  NotificationsUser[]
 
   @@map("users")
 }
@@ -308,7 +289,7 @@ model Organizer {
   phoneNumber    String
   npwp           String
   bankName       BankName
-  norek          Int
+  norek          BigInt //diganti ke string
   isVerified     DateTime?
   createdAt      DateTime   @default(now())
   updatedAt      DateTime   @updatedAt

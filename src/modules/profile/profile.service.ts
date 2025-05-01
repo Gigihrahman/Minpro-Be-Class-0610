@@ -31,7 +31,7 @@ export class ProfileService {
       });
 
       if (existingEmail) {
-        throw new ApiError("Product name already exists", 400);
+        throw new ApiError("Email sudah ada", 400);
       }
     }
     const updateProfile = await this.prisma.users.update({

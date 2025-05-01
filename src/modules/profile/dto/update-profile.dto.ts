@@ -9,21 +9,16 @@ import {
 } from "class-validator";
 
 export class UpdateProfileDTO {
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
   readonly fullName!: string;
 
-  @IsNotEmpty()
+  @IsOptional()
   @IsEmail()
   readonly email!: string;
-
-  @IsOptional()
-  @IsString()
-  readonly referralCodeUsed?: string;
 
   @IsString()
   @IsNotEmpty()
   @Matches(/^\d+$/, { message: "please enter only number" })
   readonly phoneNumber!: string;
-
 }
