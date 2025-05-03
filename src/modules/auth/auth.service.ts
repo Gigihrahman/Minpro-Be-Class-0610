@@ -211,7 +211,6 @@ export class AuthService {
       expiresIn: "2h",
     });
     const { password: pw, ...userWithoutPassword } = user;
-    console.log("USER FROM DB:", user);
 
     return {
       user: userWithoutPassword,

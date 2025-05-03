@@ -219,7 +219,6 @@ model Vouchers {
   id           Int            @id @default(autoincrement())
   organizerId  Int
   organizer    Organizer      @relation(fields: [organizerId], references: [id])
-  voucherCode  String         @unique @default(uuid())
   eventId      Int
   event        Events         @relation(fields: [eventId], references: [id])
   code         String         @unique
