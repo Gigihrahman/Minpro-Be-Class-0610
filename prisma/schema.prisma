@@ -32,20 +32,21 @@ model Events {
   cityId         Int
   city           City           @relation(fields: [cityId], references: [id])
   locationDetail String
-  name           String
+
+  name           String         @unique
   thumbnail      String         @db.Text
   description    String         @db.Text
   content        String         @db.Text
   startEvent     DateTime       @default(now())
   endEvent       DateTime
-  slug           String
+  slug           String         @unique
   createdAt      DateTime       @default(now())
   updatedAt      DateTime       @updatedAt
   deletedAt      DateTime?
   seats          Seats[]
   vouchers       Vouchers[]
   reviews        Reviews[]
-  Transactions   Transactions[]
+  transactions   Transactions[]
 
   @@map("events")
 }
@@ -125,6 +126,7 @@ model Transactions {
   points            Points?             @relation(fields: [pointsId], references: [id])
   pointsId          Int?
   eventsId          Int
+  reviews           Reviews[]
 
   @@map("transactions")
 }
@@ -150,8 +152,7 @@ model DetailTransaction {
   priceAtPurchase Int
   createdAt       DateTime     @default(now())
   updatedAt       DateTime     @updatedAt
-
-  reviews Reviews[]
+  Reviews         Reviews[]
 
   @@map("detail_transactions")
 }
@@ -250,17 +251,21 @@ model Points {
 }
 
 model Reviews {
-  id                  Int               @id @default(autoincrement())
-  eventId             Int
-  event               Events            @relation(fields: [eventId], references: [id])
-  userId              Int
-  user                Users             @relation(fields: [userId], references: [id])
-  detailTransactionId Int
-  detailTransaction   DetailTransaction @relation(fields: [detailTransactionId], references: [id])
-  rating              Int
-  comment             String            @db.Text
-  createdAt           DateTime          @default(now())
-  updatedAt           DateTime          @updatedAt
+  id      Int    @id @default(autoincrement())
+  eventId Int
+  event   Events @relation(fields: [eventId], references: [id])
+  userId  Int
+  user    Users  @relation(fields: [userId], references: [id])
+
+  transaction Transactions @relation(fields: [transactionsId], references: [id])
+  rating      Int
+  comment     String       @db.Text
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  transactionsId      Int
+  detailTransactions  DetailTransaction? @relation(fields: [detailTransactionId], references: [id])
+  detailTransactionId Int?
 
   @@map("reviews")
 }
