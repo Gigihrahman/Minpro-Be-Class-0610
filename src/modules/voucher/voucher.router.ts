@@ -1,19 +1,22 @@
 import { Router } from "express";
 import { injectable } from "tsyringe";
-import { validateBody } from "../../middlewares/validation.middleware";
-import { SeatController } from "./seat.controller";
-import { CreateSeatDTO } from "./dto/create-seat.dto";
 import { JWT_SECRET_KEY } from "../../config";
 import { JwtMiddleware } from "../../middlewares/jwt.middleware";
+import { validateBody } from "../../middlewares/validation.middleware";
+import { CreateVoucherDTO } from "./dto/create-voucher.dto";
+import { VoucherController } from "./voucher.controller";
 
 @injectable()
-export class SeatRouter {
+export class VoucherRouter {
   private router: Router;
-  private seatController: SeatController;
+  private voucherController: VoucherController;
   private jwtMiddleware: JwtMiddleware;
-  constructor(SeatController: SeatController, JwtMiddleware: JwtMiddleware) {
+  constructor(
+    VoucherController: VoucherController,
+    JwtMiddleware: JwtMiddleware
+  ) {
     this.router = Router();
-    this.seatController = SeatController;
+    this.voucherController = VoucherController;
     this.jwtMiddleware = JwtMiddleware;
     this.initialzeRouter();
   }
@@ -21,8 +24,8 @@ export class SeatRouter {
     this.router.post(
       "/:id",
       this.jwtMiddleware.verifyToken(JWT_SECRET_KEY!),
-      validateBody(CreateSeatDTO),
-      this.seatController.createSeat
+      validateBody(CreateVoucherDTO),
+      this.voucherController.createVoucher
     );
   }
   getRouter() {

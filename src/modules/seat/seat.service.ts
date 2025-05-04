@@ -12,8 +12,12 @@ export class SeatService {
     this.prisma = PrismaClient;
   }
 
-  createTicket = async (body: CreateSeatDTO, authUserId: number) => {
-    const { name, description, eventId, price, totalSeat } = body;
+  createTicket = async (
+    body: CreateSeatDTO,
+    eventId: number,
+    authUserId: number
+  ) => {
+    const { name, description, price, totalSeat } = body;
 
     const event = await this.prisma.events.findFirst({
       where: {
@@ -43,7 +47,7 @@ export class SeatService {
         404
       );
     }
-    console.log("cek");
+
     const seat = await this.prisma.seats.create({
       data: {
         name,
@@ -53,7 +57,7 @@ export class SeatService {
         totalSeat,
       },
     });
-    console.log("cek2", seat);
+
     return { message: "Ticket created successfully", seat };
   };
 }

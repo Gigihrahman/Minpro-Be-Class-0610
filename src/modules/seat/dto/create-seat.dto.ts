@@ -7,9 +7,7 @@ export class CreateSeatDTO {
   @IsNotEmpty()
   @IsString()
   readonly description!: string;
-  @IsNotEmpty()
-  @IsNumber()
-  readonly eventId!: number;
+
   @IsNotEmpty()
   @IsNumber()
   readonly price!: number;

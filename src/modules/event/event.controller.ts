@@ -52,7 +52,7 @@ export class EventController {
       const thumbnail = files.thumbnail?.[0];
       if (!thumbnail) throw new ApiError("Thumbnail is required", 400);
       const body = plainToInstance(CreateEventDTO, req.body);
-      console.log(body);
+
       const result = await this.eventService.createEvents(
         body,
         thumbnail,

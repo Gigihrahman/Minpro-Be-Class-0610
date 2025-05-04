@@ -154,7 +154,6 @@ export class EventService {
 
     // Upload the thumbnail image to Cloudinary
     const { secure_url } = await this.cloudinaryService.upload(thumbnail);
-    console.log(secure_url);
 
     // Create the event in the database
     const result = await this.prisma.events.create({
@@ -172,7 +171,6 @@ export class EventService {
         slug,
       },
     });
-    console.log(result);
 
     return { message: "created" };
   };

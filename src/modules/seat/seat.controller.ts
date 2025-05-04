@@ -12,6 +12,7 @@ export class SeatController {
     try {
       const result = await this.seatService.createTicket(
         req.body,
+        Number(req.params.id),
         res.locals.user.id
       );
       res.send(result);
