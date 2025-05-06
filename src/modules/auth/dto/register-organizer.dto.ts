@@ -42,8 +42,9 @@ export class RegisterOrganizerDTO {
   readonly npwp!: string;
 
   @IsNotEmpty()
-  @IsNumber()
-  readonly norek!: number;
+  @IsString()
+  @Matches(/^\d+$/, { message: "please enter only number" })
+  readonly norek!: string;
 
   @IsOptional()
   @IsString()

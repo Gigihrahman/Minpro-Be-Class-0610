@@ -46,6 +46,11 @@ export class ProfileRouter {
       this.jwtMiddleware.verifyToken(JWT_SECRET_KEY!),
       this.profileController.getProfile
     );
+    this.router.get(
+      "/profile-organizer",
+      this.jwtMiddleware.verifyToken(JWT_SECRET_KEY!),
+      this.profileController.getProfileOrganizer
+    );
   }
 
   getRouter() {

@@ -168,7 +168,7 @@ export class AuthService {
         profilePicture: body.profilePicture,
         npwp: body.npwp,
         bankName: body.bankName,
-        norek: body.norek,
+        norek:body.norek
       },
     });
 
