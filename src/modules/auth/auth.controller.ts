@@ -25,6 +25,14 @@ export class AuthController {
       next(error);
     }
   };
+  registerOrganizer = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const result = await this.authService.registerOrganizer(req.body);
+      res.status(200).send(result);
+    } catch (error) {
+      next(error);
+    }
+  };
 
   forgotPassword = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -38,6 +46,18 @@ export class AuthController {
   resetPassword = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const result = await this.authService.resetPassword(
+        req.body,
+        res.locals.user.id
+      );
+      res.status(200).send(result);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  changePassword = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const result = await this.authService.changePassword(
         req.body,
         res.locals.user.id
       );

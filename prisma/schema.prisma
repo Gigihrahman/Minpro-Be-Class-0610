@@ -32,6 +32,7 @@ model Events {
   cityId         Int
   city           City           @relation(fields: [cityId], references: [id])
   locationDetail String
+
   name           String         @unique
   thumbnail      String         @db.Text
   description    String         @db.Text

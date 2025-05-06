@@ -30,14 +30,13 @@ export class ProfileController {
       next(error);
     }
   };
-  updateProfile = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ) => {
+  updateProfile = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const id = res.locals.user.id;
-      const result = await this.profileService.updateProfile(Number(id), req.body);
+      const result = await this.profileService.updateProfile(
+        Number(id),
+        req.body
+      );
       res.status(200).send(result);
     } catch (error) {
       next(error);
@@ -49,6 +48,23 @@ export class ProfileController {
       const id = res.locals.user.id;
       const result = await this.profileService.getProfile(Number(id));
       res.status(200).send(result);
+    } catch (error) {
+      next(error);
+    }
+  };
+  getProfileOrganizer = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const id = res.locals.user.id;
+      const result = await this.profileService.getProfileOrganizer(Number(id));
+      res.status(200).send({
+        status: "Success",
+        message: "Successfully retrieved organizer profile",
+        data: result,
+      });
     } catch (error) {
       next(error);
     }

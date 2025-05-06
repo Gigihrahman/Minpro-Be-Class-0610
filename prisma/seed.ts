@@ -57,7 +57,7 @@ async function main() {
         npwp: "1234asfas",
         phoneNumber: "085825858",
         profilePicture: "https://picsum.photos/200/300",
-        norek: 1234567,
+        norek: "1234567",
         bankName: "BCA",
       },
 
@@ -68,7 +68,7 @@ async function main() {
         npwp: "1234asfas",
         phoneNumber: "085825858",
         profilePicture: "https://picsum.photos/200/300",
-        norek: 123456125,
+        norek: "123456125",
         bankName: "BCA",
       },
     ],

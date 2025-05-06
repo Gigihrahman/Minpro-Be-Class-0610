@@ -1,4 +1,5 @@
 import { Router } from "express";
+
 import { injectable } from "tsyringe";
 import { TransactionController } from "./transaction.controller";
 import { JwtMiddleware } from "../../middlewares/jwt.middleware";
@@ -23,9 +24,15 @@ export class TransactionRouter {
     this.transactionController = TransactionController;
     this.jwtMiddleware = JwtMiddleware;
     this.uploaderMiddleware = UploaderMiddleware;
+
     this.initialzeRouter();
   }
   private initialzeRouter() {
+    this.router.get(
+      "/",
+      this.jwtMiddleware.verifyToken(JWT_SECRET_KEY!),
+      this.transactionController.getTransactions
+    );
     this.router.get(
       "/",
       this.jwtMiddleware.verifyToken(JWT_SECRET_KEY!),

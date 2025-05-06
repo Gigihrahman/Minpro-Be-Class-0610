@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import { injectable } from "tsyringe";
 import { TransactionService } from "./transaction.service";
 import { SearchTransactionUserDTO } from "./dto/search-transaction-user.dto";
+import { GetTransactionsDTO } from "./dto/get-transactions.dto";
 import { plainToInstance } from "class-transformer";
 
 @injectable()
@@ -71,7 +72,6 @@ export class TransactionController {
       next(error);
     }
   };
-
   uploadProofment = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const files = req.files as { [fieldname: string]: Express.Multer.File[] };
@@ -83,6 +83,24 @@ export class TransactionController {
         req.params.uuid
       );
       res.send(result);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  getTransactions = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const authUserId = res.locals.user.id;
+
+      // Mengambil query parameters dari req.query, bukan req.body
+      const query = plainToInstance(GetTransactionsDTO, req.query);
+
+      const result = await this.transactionService.getTransactions(
+        query,
+        authUserId
+      );
+
+      res.status(200).send(result);
     } catch (error) {
       next(error);
     }
