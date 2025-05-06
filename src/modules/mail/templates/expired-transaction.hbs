@@ -1,0 +1,56 @@
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Transaksi Kedaluwarsa</title>
+    <style>
+      /* Reset & base */ body, p, h1, ul, li, a { margin: 0; padding: 0;
+      font-family: Arial, sans-serif; line-height: 1.6; } body {
+      background-color: #f4f4f4; -webkit-text-size-adjust: none;
+      -ms-text-size-adjust: none; } img { border: none; display: block;
+      max-width: 100%; height: auto; } a { color: inherit; text-decoration:
+      none; } /* Container */ .email-container { width: 100%; max-width: 600px;
+      margin: 0 auto; background: #ffffff; border-radius: 8px; overflow: hidden;
+      } .inner { padding: 20px; } /* Header */ .header { background: #ffc107;
+      color: #ffffff; text-align: center; padding: 20px; } .header h1 {
+      font-size: 24px; } /* Content */ .content p { color: #555555;
+      margin-bottom: 15px; font-size: 16px; } .details { list-style: none;
+      margin-bottom: 20px; } .details li { margin-bottom: 8px; font-size: 16px;
+      } .details strong { color: #333333; } /* Footer */ .footer { text-align:
+      center; padding: 15px; font-size: 12px; color: #999999; } /* Responsive */
+      @media only screen and (max-width: 480px) { .inner { padding: 15px
+      !important; } .header h1 { font-size: 20px !important; } .content p,
+      .details li { font-size: 14px !important; } }
+    </style>
+  </head>
+  <body>
+    <div class="email-container">
+      <!-- Header -->
+      <div class="header">
+        <h1>Transaksi Kedaluwarsa ⏳</h1>
+      </div>
+
+      <!-- Body -->
+      <div class="inner content">
+        <p>Halo {{name}},</p>
+        <p>Transaksi Anda dengan ID
+          <strong>{{transactionId}}</strong>
+          telah kedaluwarsa karena batas waktu yang telah terlewat. Berikut
+          detail transaksi yang kedaluwarsa:</p>
+        <ul class="details">
+          <li><strong>ID Transaksi:</strong> {{transactionId}}</li>
+          <li><strong>Jumlah:</strong> {{amount}}</li>
+          <li><strong>Tanggal:</strong> {{date}}</li>
+        </ul>
+        <p>Terima kasih atas perhatian Anda!</p>
+      </div>
+
+      <!-- Footer -->
+      <div class="footer">
+        &copy;
+        {{year}}
+        Nama Perusahaan Anda. All rights reserved.
+      </div>
+    </div>
+  </body>
+</html>

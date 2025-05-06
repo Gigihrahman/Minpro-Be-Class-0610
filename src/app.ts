@@ -4,16 +4,18 @@ import "reflect-metadata";
 import { container } from "tsyringe";
 import { PORT } from "./config";
 import { errorMiddleware } from "./middlewares/error.middleware";
+import loggerMiddleware from "./middlewares/logger.middleware";
 import { AuthRouter } from "./modules/auth/auth.router";
-import { SampleRouter } from "./modules/sample/sample.router";
-import { ProfileRouter } from "./modules/profile/profile.router";
-import { EventRouter } from "./modules/event/event.router";
 import { CategoryRouter } from "./modules/category/category.router";
 import { CityRouter } from "./modules/city/city.router";
-import loggerMiddleware from "./middlewares/logger.middleware";
+import { EventRouter } from "./modules/event/event.router";
+import "./modules/jobs";
+import { ProfileRouter } from "./modules/profile/profile.router";
+import { ReviewRouter } from "./modules/review/review.router";
+import { SampleRouter } from "./modules/sample/sample.router";
 import { SeatRouter } from "./modules/seat/seat.router";
-import { VoucherRouter } from "./modules/voucher/voucher.router";
 import { TransactionRouter } from "./modules/transaction/transaction.router";
+import { VoucherRouter } from "./modules/voucher/voucher.router";
 
 export class App {
   public app: Express;
@@ -41,6 +43,8 @@ export class App {
     const voucherRouter = container.resolve(VoucherRouter);
     const transactionRouter = container.resolve(TransactionRouter);
 
+    const reviewRouter = container.resolve(ReviewRouter);
+
     this.app.use("/samples", sampleRouter.getRouter());
     this.app.use("/auth", authRouter.getRouter());
     this.app.use("/profile", profileRouter.getRouter());
@@ -50,6 +54,8 @@ export class App {
     this.app.use("/seats", seatRouter.getRouter());
     this.app.use("/vouchers", voucherRouter.getRouter());
     this.app.use("/transactions", transactionRouter.getRouter());
+
+    this.app.use("/reviews", reviewRouter.getRouter());
   }
 
   private handleError() {

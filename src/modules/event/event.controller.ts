@@ -65,7 +65,7 @@ export class EventController {
     }
   };
 
-  createBlog = async (req: Request, res: Response, next: NextFunction) => {
+  createEvent = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const files = req.files as { [fieldname: string]: Express.Multer.File[] };
       const thumbnail = files.thumbnail?.[0];
