@@ -44,7 +44,7 @@ export class EventRouter {
         "image/png",
       ]),
       validateBody(CreateEventDTO),
-      this.eventController.createBlog
+      this.eventController.createEvent
     );
   };
   getRouter() {

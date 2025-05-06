@@ -50,9 +50,9 @@ export class EventService {
         deletedAt: true,
       },
       include: {
-        organizer: { select: { name: true } },
+        organizer: { select: { name: true, profilePicture: true } },
         city: { select: { name: true } },
-        category: { select: { name: true } },
+        category: { select: { name: true, slug: true } },
       },
     });
 
@@ -70,7 +70,7 @@ export class EventService {
       include: {
         organizer: { select: { name: true } },
         city: { select: { name: true } },
-        category: { select: { name: true } },
+        category: { select: { name: true, slug: true } },
         seats: {
           select: {
             id: true,

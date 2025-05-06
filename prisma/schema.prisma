@@ -109,7 +109,6 @@ model Transactions {
   userId            Int
   voucher_amount    Int?
   voucherId         Int?
-  eventId           Int
   event             Events              @relation(fields: [eventsId], references: [id])
   voucher           Vouchers?           @relation(fields: [voucherId], references: [id])
   coupoun_amount    Int?
@@ -292,7 +291,7 @@ model Organizer {
   phoneNumber    String
   npwp           String
   bankName       BankName
-  norek          BigInt //diganti ke string
+  norek          String
   isVerified     DateTime?
   createdAt      DateTime   @default(now())
   updatedAt      DateTime   @updatedAt

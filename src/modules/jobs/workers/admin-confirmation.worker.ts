@@ -1,0 +1,61 @@
+import { Worker } from "bullmq";
+import { redisConnection } from "../../../lib/redis";
+
+import { ApiError } from "../../../utils/api-error";
+import { PrismaService } from "../../prisma/prisma.service";
+import { MailService } from "../../mail/mail.service";
+
+const mail = new MailService();
+const prisma = new PrismaService();
+export const adminConfirmationWorker = new Worker(
+  "admin-confirmation-queue",
+  async (job) => {
+    const uuid = job.data.uuid;
+    const transaction = await prisma.transactions.findFirst({
+      where: { uuid },
+    });
+    if (!transaction) throw new ApiError("invalid transaction uuid", 400);
+    if (transaction.status === "WAITING_FOR_ADMIN_CONFIRMATION") {
+      await prisma.$transaction(async (tx) => {
+        await tx.transactions.update({
+          where: { uuid },
+          data: {
+            status: "CANCELED",
+          },
+        });
+        const transactionItems = await tx.detailTransaction.findMany({
+          where: { transactionId: transaction.id },
+          select: { seatsId: true, quantity: true },
+        });
+
+        for (const item of transactionItems) {
+          await tx.seats.update({
+            where: { id: item.seatsId },
+            data: {
+              reserved: { decrement: item.quantity },
+            },
+          });
+        }
+      });
+
+      const user = await prisma.users.findFirst({
+        where: { id: transaction.userId },
+        select: { email: true, fullName: true },
+      });
+      if (!user) throw new ApiError("invalid user", 400);
+      await mail.sendEmail(
+        user.email,
+        "Transaction Expired",
+        "expired-transaction",
+        {
+          name: user?.fullName,
+          transactionId: transaction.uuid,
+          amount: transaction.totalPrice,
+          date: transaction.createdAt,
+          year: new Date().getFullYear(),
+        }
+      );
+    }
+  },
+  { connection: redisConnection }
+);
