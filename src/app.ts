@@ -13,6 +13,7 @@ import { CityRouter } from "./modules/city/city.router";
 import loggerMiddleware from "./middlewares/logger.middleware";
 import { SeatRouter } from "./modules/seat/seat.router";
 import { VoucherRouter } from "./modules/voucher/voucher.router";
+import { TransactionRouter } from "./modules/transaction/transaction.router";
 
 export class App {
   public app: Express;
@@ -38,6 +39,7 @@ export class App {
     const cityRouter = container.resolve(CityRouter);
     const seatRouter = container.resolve(SeatRouter);
     const voucherRouter = container.resolve(VoucherRouter);
+    const transactionRouter = container.resolve(TransactionRouter);
 
     this.app.use("/samples", sampleRouter.getRouter());
     this.app.use("/auth", authRouter.getRouter());
@@ -47,6 +49,7 @@ export class App {
     this.app.use("/city", cityRouter.getRouter());
     this.app.use("/seats", seatRouter.getRouter());
     this.app.use("/vouchers", voucherRouter.getRouter());
+    this.app.use("/transactions", transactionRouter.getRouter());
   }
 
   private handleError() {

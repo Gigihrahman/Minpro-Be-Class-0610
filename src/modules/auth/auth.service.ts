@@ -18,6 +18,8 @@ import { MailService } from "../mail/mail.service";
 import { TokenService } from "./token.service";
 import { ResetPasswordDTO } from "./dto/reset-password.dto";
 import { PasswordService } from "./password.service";
+import { ChangePasswordDTO } from "./dto/change-password.dto";
+import { RegisterOrganizerDTO } from "./dto/register-organizer.dto";
 
 @injectable()
 export class AuthService {
@@ -129,12 +131,68 @@ export class AuthService {
 
     return result;
   };
+  registerOrganizer = async (body: RegisterOrganizerDTO) => {
+    const { email, password } = body;
+
+    const existingAdmin = await this.prisma.users.findFirst({
+      where: { email },
+    });
+
+    if (existingAdmin) {
+      throw new ApiError("Email already exists", 400);
+    }
+
+    const hashedPassword = await this.passwordService.hashPassword(password);
+
+    const referralCode = nanoid(10);
+
+    // Step 1: Buat user baru dengan role ADMIN
+    const newUser = await this.prisma.users.create({
+      data: {
+        email,
+        password: hashedPassword,
+        fullName: body.name,
+        phoneNumber: body.phoneNumber,
+        profilePicture: body.profilePicture,
+        referalCode: referralCode,
+        role: "ORGANIZER",
+      },
+    });
+
+    // Step 2: Buat data organizer yang terkait dengan user
+    const newOrganizer = await this.prisma.organizer.create({
+      data: {
+        userId: newUser.id,
+        name: body.name,
+        phoneNumber: body.phoneNumber,
+        profilePicture: body.profilePicture,
+        npwp: body.npwp,
+        bankName: body.bankName,
+        norek:body.norek
+      },
+    });
+
+    return {
+      id: newUser.id,
+      email: newUser.email,
+      role: newUser.role,
+      fullName: newUser.fullName,
+      organizer: newOrganizer,
+    };
+  };
 
   login = async (body: LoginDTO) => {
     const { email, password } = body;
 
     const user = await this.prisma.users.findFirst({
       where: { email },
+      select: {
+        id: true,
+        fullName: true,
+        email: true,
+        role: true,
+        password: true,
+      },
     });
 
     if (!user) {
@@ -154,7 +212,10 @@ export class AuthService {
     });
     const { password: pw, ...userWithoutPassword } = user;
 
-    return { ...userWithoutPassword, accessToken };
+    return {
+      user: userWithoutPassword,
+      accessToken,
+    };
   };
 
   forgotPassword = async (body: ForgotPasswordDTO) => {
@@ -205,5 +266,35 @@ export class AuthService {
     });
 
     return { message: "Reset password success" };
+  };
+  changePassword = async (body: ChangePasswordDTO, userId: number) => {
+    const user = await this.prisma.users.findFirst({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      throw new ApiError("Invalid user id", 400);
+    }
+    const { oldPassword, newPassword } = body;
+
+    const isPasswordValid = await this.passwordService.comparePassword(
+      oldPassword,
+      user.password
+    );
+
+    if (!isPasswordValid) {
+      throw new ApiError("Invalid credentials", 400);
+    }
+
+    const hashedNewPassword = await this.passwordService.hashPassword(
+      newPassword
+    );
+
+    await this.prisma.users.update({
+      where: { id: userId },
+      data: { password: hashedNewPassword },
+    });
+
+    return { message: "Change password success" };
   };
 }
