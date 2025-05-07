@@ -34,9 +34,8 @@ export class EventRouter {
       verifyRole(["ORGANIZER"]),
       this.eventController.getEventsOrganizerId
     );
-    this.router.get("/:slug", this.eventController.getEventBySlug);
     this.router.post(
-      "/",
+      "/create",
       this.jwtMiddleware.verifyToken(JWT_SECRET_KEY!),
 
       this.uploaderMiddleware
@@ -50,6 +49,7 @@ export class EventRouter {
       validateBody(CreateEventDTO),
       this.eventController.createEvent
     );
+    this.router.get("/:slug", this.eventController.getEventBySlug);
     this.router.patch(
       "/:id",
       this.jwtMiddleware.verifyToken(JWT_SECRET_KEY!),

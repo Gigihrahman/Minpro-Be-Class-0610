@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && npm run copy-files",
+    "copy-files" : "cpx src/modules/mail/templates/**/* dist/modules/mail/templates",
     "start": "npm run build && node dist/index.js",
     "dev": "nodemon src/index.ts",
     "seed": "ts-node prisma/seed.ts"
@@ -19,12 +20,14 @@
     "@types/multer": "^1.4.12",
     "@types/node": "^22.14.0",
     "@types/nodemailer": "^6.4.17",
+    "cpx2": "^8.0.0",
     "nodemon": "^3.1.9",
     "ts-node": "^10.9.2",
     "typescript": "^5.8.3"
   },
   "dependencies": {
     "@prisma/client": "^6.6.0",
+    "@types/node-schedule": "^2.1.7",
     "argon2": "^0.41.1",
     "bullmq": "^5.52.1",
     "class-transformer": "^0.5.1",
@@ -41,6 +44,7 @@
     "jsonwebtoken": "^9.0.2",
     "multer": "^1.4.5-lts.2",
     "nanoid": "^3.3.11",
+    "node-schedule": "^2.1.1",
     "nodemailer": "^6.10.1",
     "prisma": "^6.6.0",
     "reflect-metadata": "^0.2.2",

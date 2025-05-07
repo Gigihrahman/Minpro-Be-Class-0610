@@ -4,6 +4,9 @@ import { ProfileController } from "./profile.controller";
 import { JwtMiddleware } from "../../middlewares/jwt.middleware";
 import { JWT_SECRET_KEY } from "../../config";
 import { UploaderMiddleware } from "../../middlewares/uploader.middleware";
+import { verifyRole } from "../../middlewares/role.middleware";
+import { UpdateEventDTO } from "../event/dto/update-event.dto";
+import { validateBody } from "../../middlewares/validation.middleware";
 
 @injectable()
 export class ProfileRouter {
@@ -36,6 +39,14 @@ export class ProfileRouter {
       ]),
       this.profileController.updateFotoProfile
     );
+    this.router.put(
+      "/updateorganizer",
+      this.jwtMiddleware.verifyToken(JWT_SECRET_KEY!),
+      verifyRole(["ORGANIZER"]),
+      validateBody(UpdateEventDTO),
+      this.profileController.updateProfileOrganizer
+    );
+
     this.router.patch(
       "/update-profile",
       this.jwtMiddleware.verifyToken(JWT_SECRET_KEY!),

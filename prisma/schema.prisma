@@ -24,29 +24,29 @@ model Sample {
 }
 
 model Events {
-  id             Int            @id @default(autoincrement())
+  id             Int        @id @default(autoincrement())
   categoryId     Int
-  category       Categories     @relation(fields: [categoryId], references: [id])
+  category       Categories @relation(fields: [categoryId], references: [id])
   organizerId    Int
-  organizer      Organizer      @relation(fields: [organizerId], references: [id])
+  organizer      Organizer  @relation(fields: [organizerId], references: [id])
   cityId         Int
-  city           City           @relation(fields: [cityId], references: [id])
+  city           City       @relation(fields: [cityId], references: [id])
   locationDetail String
 
-  name           String         @unique
-  thumbnail      String         @db.Text
-  description    String         @db.Text
-  content        String         @db.Text
-  startEvent     DateTime       @default(now())
-  endEvent       DateTime
-  slug           String         @unique
-  createdAt      DateTime       @default(now())
-  updatedAt      DateTime       @updatedAt
-  deletedAt      DateTime?
-  seats          Seats[]
-  vouchers       Vouchers[]
-  reviews        Reviews[]
-  transactions   Transactions[]
+  name         String         @unique
+  thumbnail    String         @db.Text
+  description  String         @db.Text
+  content      String         @db.Text
+  startEvent   DateTime       @default(now())
+  endEvent     DateTime
+  slug         String         @unique
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  deletedAt    DateTime?
+  seats        Seats[]
+  vouchers     Vouchers[]
+  reviews      Reviews[]
+  transactions Transactions[]
 
   @@map("events")
 }

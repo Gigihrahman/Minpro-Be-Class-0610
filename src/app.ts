@@ -16,6 +16,8 @@ import { SampleRouter } from "./modules/sample/sample.router";
 import { SeatRouter } from "./modules/seat/seat.router";
 import { TransactionRouter } from "./modules/transaction/transaction.router";
 import { VoucherRouter } from "./modules/voucher/voucher.router";
+import { DashboardRouter } from "./modules/statistics/dashboard.router";
+import { FotoProfileRouter } from "./modules/fotoprofile/fotoprofile.router";
 import { DiscountRouter } from "./modules/discount/discount.router";
 
 export class App {
@@ -43,6 +45,8 @@ export class App {
     const seatRouter = container.resolve(SeatRouter);
     const voucherRouter = container.resolve(VoucherRouter);
     const transactionRouter = container.resolve(TransactionRouter);
+    const dashboardRouter = container.resolve(DashboardRouter);
+    const fotoProfileRouter = container.resolve(FotoProfileRouter);
     const discountRouter = container.resolve(DiscountRouter);
     const reviewRouter = container.resolve(ReviewRouter);
 
@@ -55,6 +59,8 @@ export class App {
     this.app.use("/seats", seatRouter.getRouter());
     this.app.use("/vouchers", voucherRouter.getRouter());
     this.app.use("/transactions", transactionRouter.getRouter());
+    this.app.use("/dashboard", dashboardRouter.getRouter());
+    this.app.use("/fotoprofile", fotoProfileRouter.getRouter());
     this.app.use("/reviews", reviewRouter.getRouter());
 
     this.app.use("/discount", discountRouter.getRouter());

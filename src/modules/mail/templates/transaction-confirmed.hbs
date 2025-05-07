@@ -1,0 +1,88 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Transaction Confirmed</title>
+    <style>
+      body { font-family: 'Helvetica Neue', Arial, sans-serif; line-height: 1.6;
+      color: #333; background-color: #f9f9f9; margin: 0; padding: 0; }
+      .container { max-width: 600px; margin: 0 auto; padding: 20px; } .header {
+      background: linear-gradient(135deg, #6a11cb, #8e44ad); padding: 30px;
+      text-align: center; border-radius: 10px 10px 0 0; } .header h1 { color:
+      white; margin: 0; font-size: 28px; font-weight: 700; letter-spacing: 1px;
+      } .content { background-color: white; padding: 40px 30px; border-radius: 0
+      0 10px 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); } .ticket {
+      background-color: #f5f0ff; border-left: 4px solid #6a11cb; padding: 20px;
+      margin: 20px 0; border-radius: 5px; } .ticket-detail { margin-bottom: 8px;
+      font-size: 15px; } .ticket-detail strong { color: #6a11cb; width: 120px;
+      display: inline-block; } .button { display: inline-block; background:
+      linear-gradient(135deg, #6a11cb, #8e44ad); color: white; text-decoration:
+      none; padding: 14px 30px; border-radius: 50px; font-weight: bold;
+      margin-top: 20px; transition: transform 0.3s; } .button:hover { transform:
+      translateY(-2px); } .footer { text-align: center; margin-top: 30px;
+      font-size: 14px; color: #777; } .social-links { margin-top: 20px; }
+      .social-links a { display: inline-block; margin: 0 8px; color: #6a11cb;
+      font-size: 18px; text-decoration: none; } .divider { height: 1px;
+      background-color: #eee; margin: 25px 0; } .confetti { font-size: 32px;
+      text-align: center; margin: 20px 0; }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>Transaction Confirmed! 🎉</h1>
+      </div>
+      <div class="content">
+        <p>Hello {{name}},</p>
+
+        <p>Great news! Your transaction for
+          <strong>{{eventName}}</strong>
+          has been
+          <strong>confirmed</strong>. Get ready for an amazing experience!</p>
+
+        <div class="confetti">🎊 🎵 ✨</div>
+
+        <div class="ticket">
+          <h3 style="color: #6a11cb; margin-top: 0;">Your Ticket Details</h3>
+          <div class="ticket-detail"><strong>Event:</strong> {{eventName}}</div>
+          <div class="ticket-detail"><strong>Date:</strong> {{eventDate}}</div>
+          <div class="ticket-detail"><strong>Time:</strong> {{eventTime}}</div>
+          <div class="ticket-detail"><strong>Location:</strong>
+            {{eventLocation}}</div>
+          <div class="ticket-detail"><strong>Ticket ID:</strong>
+            {{ticketId}}</div>
+          <div class="ticket-detail"><strong>Order Total:</strong>
+            {{orderTotal}}</div>
+        </div>
+
+        <p>You can access your e-ticket by clicking the button below. Please
+          keep this email for your records.</p>
+
+        <div style="text-align: center;">
+          <a href="{{ticketUrl}}" class="button">View My Ticket</a>
+        </div>
+
+        <div class="divider"></div>
+
+        <p>We're excited to see you at the event! If you have any questions,
+          feel free to reply to this email or contact our support team.</p>
+
+        <p>Best regards,<br />The {{companyName}} Team</p>
+      </div>
+
+      <div class="footer">
+        <p>© {{currentYear}} {{companyName}}. All rights reserved.</p>
+        <p>{{companyAddress}}</p>
+        <div class="social-links">
+          <a href="{{facebookUrl}}">Facebook</a>
+          •
+          <a href="{{instagramUrl}}">Instagram</a>
+          •
+          <a href="{{twitterUrl}}">Twitter</a>
+        </div>
+        <p style="margin-top: 20px; font-size: 12px;">If you did not make this
+          purchase, please contact us immediately.</p>
+      </div>
+    </div>
+  </body>
+</html>

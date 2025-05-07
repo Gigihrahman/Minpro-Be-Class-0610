@@ -267,6 +267,7 @@ export class AuthService {
 
     return { message: "Reset password success" };
   };
+  
   changePassword = async (body: ChangePasswordDTO, userId: number) => {
     const user = await this.prisma.users.findFirst({
       where: { id: userId },

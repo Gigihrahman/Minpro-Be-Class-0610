@@ -29,7 +29,12 @@ export class TransactionRouter {
   }
   private initialzeRouter() {
     this.router.get(
-      "/",
+      "/admin-confirmation",
+      this.jwtMiddleware.verifyToken(JWT_SECRET_KEY!),
+      this.transactionController.getTransactionsAdminConfirmation
+    );
+    this.router.get(
+      "/all-transactions",
       this.jwtMiddleware.verifyToken(JWT_SECRET_KEY!),
       this.transactionController.getTransactions
     );
@@ -55,6 +60,12 @@ export class TransactionRouter {
       this.jwtMiddleware.verifyToken(JWT_SECRET_KEY!),
       validateBody(UsingCodeDTO),
       this.transactionController.applyCode
+    );
+    this.router.patch(
+      "/update/:uuid",
+      this.jwtMiddleware.verifyToken(JWT_SECRET_KEY!),
+      validateBody(UsingCodeDTO),
+      this.transactionController.updateTransaction
     );
     this.router.post(
       "/upload-proofment/:uuid",

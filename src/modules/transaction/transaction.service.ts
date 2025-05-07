@@ -14,6 +14,7 @@ import { adminConfirmationQueue } from "../jobs/queues/admin-confirmation.queue"
 import { SearchTransactionUserDTO } from "./dto/search-transaction-user.dto";
 import { Prisma, TransactionStatus } from "../../generated/prisma";
 import { GetTransactionsDTO } from "./dto/get-transactions.dto";
+import { UpdateTransactionDTO } from "./dto/update-transaction.dto";
 
 @injectable()
 export class TransactionService {
@@ -101,7 +102,7 @@ export class TransactionService {
   };
 
   // Method from main branch
-  getTransactions = async (query: any, authUserId: number) => {
+  getTransactionsAdminConfirmation = async (query: any, authUserId: number) => {
     // Destructure from query, not from body
     const {
       search,
@@ -119,9 +120,108 @@ export class TransactionService {
     const whereClause: Prisma.TransactionsWhereInput = {
       event: {
         organizerId: organizer?.id,
+
         ...(search && {
           name: { contains: search, mode: "insensitive" },
         }),
+      },
+      status: "WAITING_FOR_ADMIN_CONFIRMATION", // Memindahkan status ke dalam whereClause
+    };
+
+    // Get transactions
+    const transactions = await this.prisma.transactions.findMany({
+      where: whereClause,
+      orderBy: { [sortBy]: sortOrder },
+      skip: (page - 1) * take,
+      take: Number(take),
+
+      include: {
+        event: {
+          select: {
+            name: true,
+            locationDetail: true,
+            startEvent: true,
+            endEvent: true,
+          },
+        },
+        voucher: {
+          select: { code: true },
+        },
+        detailTransaction: {
+          select: {
+            quantity: true,
+            seats: { select: { name: true, price: true } },
+          },
+        },
+        points: {
+          select: { pointsValue: true },
+        },
+        payments: {
+          select: {
+            paymentMethod: true,
+            paymentProofUrl: true,
+            createdAt: true,
+          },
+        },
+      },
+    });
+
+    // Get user emails based on userId from transactions
+    const userIds = [...new Set(transactions.map((t) => t.userId))];
+    const users = await this.prisma.users.findMany({
+      where: { id: { in: userIds } },
+      select: { id: true, email: true },
+    });
+
+    // Combine email with each transaction
+    const transactionsWithUserEmail = transactions.map((t) => ({
+      ...t,
+      userEmail: users.find((u) => u.id === t.userId)?.email || null,
+    }));
+
+    // Count total transactions (for pagination)
+    const count = await this.prisma.transactions.count({
+      where: whereClause,
+    });
+
+    return {
+      data: transactionsWithUserEmail,
+      meta: { page: Number(page), take: Number(take), total: count },
+    };
+  };
+  getTransactions = async (query: any, authUserId: number) => {
+    // Destructure from query, not from body
+    const {
+      search,
+      take = 10,
+      page = 1,
+      sortBy = "createdAt",
+      sortOrder = "desc",
+    } = query;
+
+    // Find the organizer based on the authenticated user ID
+    const organizer = await this.prisma.organizer.findFirst({
+      where: { userId: authUserId },
+    });
+
+    // If no organizer found, return empty result
+    if (!organizer) {
+      return {
+        data: [],
+        meta: { page: Number(page), take: Number(take), total: 0 },
+      };
+    }
+
+    // Filter transactions based on relationship between event.organizerId and organizer's ID
+    const whereClause: Prisma.TransactionsWhereInput = {
+      event: {
+        organizerId: organizer.id,
+        ...(search && {
+          name: { contains: search, mode: "insensitive" },
+        }),
+      },
+      status: {
+        in: ["DONE", "REJECTED", "CANCELED", "EXPIRED"],
       },
     };
 
@@ -512,71 +612,134 @@ export class TransactionService {
 
   // Commented out method from main branch
   // Left as a comment since it appears to be in development and not fully implemented
-  /*
+
   updateTransaction = async (
-    authUserId: number,
-    uuid: string,
-    action: "accept" | "reject"
+    transactionId: string,
+    adminId: number,
+    body: UpdateTransactionDTO
   ) => {
-    const transaction = await this.prisma.transactions.findUnique({
-      where: { uuid },
+    // 1. Validasi transaksi
+    const transaction = await this.prisma.transactions.findFirst({
+      where: { uuid: transactionId },
       include: {
+        event: true,
         detailTransaction: {
           include: {
-            seats: {
-              include: {
-                event: true,
-              },
-            },
+            seats: true,
           },
         },
-        user: true, // Assuming there's a relation to user via userId
+        payments: true,
       },
     });
 
-    if (!transaction) throw new ApiError("Transaction not found", 404);
+    if (!transaction) {
+      throw new ApiError("Transaction not found", 404);
+    }
+
+    // 2. Validasi status transaksi
     if (transaction.status !== "WAITING_FOR_ADMIN_CONFIRMATION") {
-      throw new ApiError("Transaction cannot be updated at this stage", 400);
-    }
-
-    // Check if there's payment proof (need to check in payments table)
-    const paymentProof = await this.prisma.payments.findFirst({
-      where: { transactionId: transaction.id },
-    });
-
-    if (!paymentProof) {
-      throw new ApiError("User has not uploaded payment proof", 400);
-    }
-
-    // Check if the authenticated user is the organizer of any event in the transaction
-    const isAuthorized = transaction.detailTransaction.some(
-      (detail) => detail.seats.event.organizerId === authUserId
-    );
-
-    if (!isAuthorized) {
       throw new ApiError(
-        "You are not authorized to update this transaction",
-        403
+        "Transaction can only be updated when in WAITING_FOR_ADMIN_CONFIRMATION status",
+        400
       );
     }
 
-    let updateStatus: TransactionStatus;
-    let templateFile: string;
-    let emailSubject: string;
+    // 3. Validasi admin (opsional)
+    const admin = await this.prisma.users.findFirst({
+      where: { id: adminId, role: "ORGANIZER" },
+    });
+    console.log("ini admin", admin);
 
-    if (action === "reject") {
-      updateStatus = "REJECTED";
-      templateFile = "rejected-transaction-email";
-      emailSubject = "❌ Your transaction has been rejected!";
-    } else {
-      updateStatus = "DONE";
-      templateFile = "accepted-transaction-email";
-      emailSubject = "🎉 Your transaction has been accepted";
+    if (!admin) {
+      throw new ApiError("Admin not found or unauthorized", 404);
     }
 
-    await this.prisma.$transaction(async (tx) => {
-      if (action === "reject") {
-        // Return tickets to inventory by updating reserved count
+    // 4. Validasi event masih berlangsung
+    if (transaction.event.startEvent < new Date()) {
+      throw new ApiError("Event already started", 400);
+    }
+
+    if (transaction.event.endEvent < new Date()) {
+      throw new ApiError("Event already ended", 400);
+    }
+
+    // 5. Dapatkan user untuk mengirim notifikasi nanti
+    const user = await this.prisma.users.findFirst({
+      where: { id: transaction.userId },
+    });
+
+    if (!user) {
+      throw new ApiError("User not found", 404);
+    }
+
+    // 6. Proses update transaksi dalam satu transaksi database
+    const { status, paymentProofUrl } = body;
+
+    const updatedTransaction = await this.prisma.$transaction(async (tx) => {
+      // Update status transaksi
+      const transactionUpdate = await tx.transactions.update({
+        where: { uuid: transactionId },
+        data: {
+          status: status,
+          updatedAt: new Date(),
+        },
+      });
+
+      // Jika status DONE, buat tiket untuk setiap seat yang dibeli
+      if (status === "DONE") {
+        // Untuk setiap detailTransaction, buat tiket
+        for (const detail of transaction.detailTransaction) {
+          for (let i = 0; i < detail.quantity; i++) {
+            // Buat tiket untuk seat yang dibeli
+            await tx.tickets.create({
+              data: {
+                userId: transaction.userId,
+                seatId: detail.seatsId,
+                ticketCode: `TIX-${transactionId.substring(0, 8)}-${
+                  detail.seatsId
+                }-${i + 1}`,
+              },
+            });
+          }
+        }
+
+        // Jika transaksi berhasil, tambahkan point ke user (opsional)
+        const pointValue = Math.floor(transaction.totalPrice / 10000); // Misalnya 1 point untuk setiap 10000
+        if (pointValue > 0) {
+          // Cek apakah user sudah memiliki point
+          const existingPoint = await tx.points.findFirst({
+            where: { userId: transaction.userId },
+          });
+
+          if (existingPoint) {
+            // Update point yang sudah ada
+            await tx.points.update({
+              where: { id: existingPoint.id },
+              data: {
+                pointsValue: existingPoint.pointsValue + pointValue,
+                expiredDate: new Date(
+                  new Date().setFullYear(new Date().getFullYear() + 1)
+                ), // Point berlaku 1 tahun
+              },
+            });
+          } else {
+            // Buat point baru
+            await tx.points.create({
+              data: {
+                userId: transaction.userId,
+                pointsValue: pointValue,
+                expiredDate: new Date(
+                  new Date().setFullYear(new Date().getFullYear() + 1)
+                ),
+              },
+            });
+          }
+        }
+      }
+
+      // Jika status REJECTED, kembalikan seat yang sudah direservasi
+      else if (status === "REJECTED") {
+        // Kembalikan jumlah seat yang direservasi
         for (const detail of transaction.detailTransaction) {
           await tx.seats.update({
             where: { id: detail.seatsId },
@@ -585,107 +748,109 @@ export class TransactionService {
             },
           });
         }
-
-        // Refund points if points were used
-        if (transaction.usedPoint && transaction.usedPoint > 0) {
-          await tx.points.update({
-            where: { userId: transaction.userId },
-            data: { pointsValue: { increment: transaction.usedPoint } },
-          });
-        }
-
-        // Return voucher to be usable again if one was used
-        if (transaction.voucherId) {
-          await tx.vouchers.update({
-            where: { id: transaction.voucherId },
-            data: { claimed: { decrement: 1 } },
-          });
-        }
-
-        // Return coupon to be usable again if one was used
-        if (transaction.couponId) {
-          await tx.coupons.update({
-            where: { id: transaction.couponId },
-            data: { isUsed: false },
-          });
-        }
-
-        // Cancel any pending jobs if they exist
-        const expireJob =
-          await this.transactionQueue.userTransactionQueue.getJob(
-            `expire-transaction:${uuid}`
-          );
-        if (expireJob) {
-          await expireJob.remove();
-        }
-
-        const organizationJob =
-          await this.transactionQueue.userTransactionQueue.getJob(
-            `organization-response:${uuid}`
-          );
-        if (organizationJob) {
-          await organizationJob.remove();
-        }
       }
 
-      if (action === "accept") {
-        // Create tickets for the accepted transaction
-        for (const detail of transaction.detailTransaction) {
-          for (let i = 0; i < detail.quantity; i++) {
-            await tx.tickets.create({
-              data: {
-                userId: transaction.userId,
-                seatId: detail.seatsId,
-                ticketCode: `TKT-${uuid.substring(0, 8)}-${i + 1}`,
-                createdAt: new Date(),
-                updatedAt: new Date(),
-              },
-            });
-          }
-        }
-
-        // Schedule follow-up job
-        await this.transactionQueue.userTransactionQueue.add(
-          "organizer-followup",
-          { uuid },
-          {
-            jobId: `organizer-followup:${uuid}`,
-            delay: 5 * 24 * 60 * 60 * 1000, // 5 days
-            removeOnComplete: true,
-            attempts: 3,
-            backoff: { type: "exponential", delay: 1000 },
-          }
-        );
+      // Jika ada paymentProofUrl, update payment
+      if (
+        paymentProofUrl &&
+        transaction.payments &&
+        transaction.payments.length > 0
+      ) {
+        await tx.payments.update({
+          where: { id: transaction.payments[0].id },
+          data: {
+            paymentProofUrl,
+            updatedAt: new Date(),
+          },
+        });
       }
 
-      // Update transaction status
-      await tx.transactions.update({
-        where: { uuid },
-        data: { status: updateStatus },
-      });
+      return transactionUpdate;
     });
 
-    // Get user and event information for email
-    const user = await this.prisma.users.findUnique({
-      where: { id: transaction.userId },
+    // 7. Kirim email notifikasi sesuai status baru
+    // Determine email template based on transaction status
+    // Determine email template based on transaction status
+    const emailTemplate =
+      status === "DONE"
+        ? "transaction-confirmed"
+        : status === "REJECTED"
+        ? "transaction-rejected"
+        : "transaction-updated";
+
+    // Format date and time for event
+    const eventStartDate = transaction.event.startEvent;
+    const formattedEventDate = eventStartDate.toLocaleDateString("id-ID", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+    const formattedEventTime = eventStartDate.toLocaleTimeString("id-ID", {
+      hour: "2-digit",
+      minute: "2-digit",
     });
 
-    const eventName =
-      transaction.detailTransaction[0]?.seats.event.name || "Event";
+    // Create ticket IDs if status is DONE (for template)
+    const ticketIds =
+      status === "DONE"
+        ? transaction.detailTransaction.map(
+            (detail) =>
+              `TIX-${transaction.uuid.substring(0, 8)}-${detail.seatsId}`
+          )
+        : [];
 
     // Send email notification
-    await this.mailService.sendEmail(user.email, emailSubject, templateFile, {
-      fullname: user.fullName,
-      transactionId: uuid,
-      transactionAmount: transaction.totalPrice,
-      eventName: eventName,
-      transactionDate: transaction.createdAt,
-    });
+    await this.mailService.sendEmail(
+      user.email,
+      `Pembaruan Status Transaksi: ${status}`,
+      emailTemplate,
+      {
+        // User info
+        name: user.fullName,
 
-    return {
-      message: `Transaction ${action}ed successfully`,
-      data: { uuid, status: updateStatus },
-    };
+        // Event info
+        eventName: transaction.event.name,
+        eventDate: formattedEventDate,
+        eventTime: formattedEventTime,
+        eventLocation: `${transaction.event.locationDetail}`,
+
+        // Transaction info
+        transactionId: transaction.uuid,
+        ticketId: ticketIds.join(", "),
+        orderTotal: new Intl.NumberFormat("id-ID", {
+          style: "currency",
+          currency: "IDR",
+        }).format(transaction.totalPrice),
+
+        // Links
+        ticketUrl: `https://appmu.com/tickets/${transaction.uuid}`,
+        transactionLink: `https://appmu.com/tx/${transaction.uuid}`,
+
+        // Status and metadata
+        status: status,
+        date: new Date(),
+        currentYear: new Date().getFullYear(),
+
+        // Company info (you can update these with your actual company details)
+        companyName: "EventMaster",
+        companyAddress: "Jl. Sudirman No. 123, Jakarta",
+        facebookUrl: "https://facebook.com/eventmaster",
+        instagramUrl: "https://instagram.com/eventmaster",
+        twitterUrl: "https://twitter.com/eventmaster",
+      }
+    );
+
+    // 8. Jika status DONE, hapus job antrian timeout jika masih ada
+    if (status === "DONE" || status === "REJECTED") {
+      try {
+        await userTransactionQueue.removeJobScheduler(transaction.uuid);
+      } catch (error) {
+        console.error("Failed to remove job from queue", error);
+      }
+    }
+    console.log("INI UPDATE: ", updatedTransaction);
+
+    return updatedTransaction;
   };
-  */
 }

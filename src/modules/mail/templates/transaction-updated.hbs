@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Transaction Status Update</title>
+  <style>
+    body {
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      background-color: #f9f9f9;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    .header {
+      background: linear-gradient(135deg, #6a11cb, #8e44ad);
+      padding: 30px;
+      text-align: center;
+      border-radius: 10px 10px 0 0;
+    }
+    .header h1 {
+      color: white;
+      margin: 0;
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: 1px;
+    }
+    .content {
+      background-color: white;
+      padding: 40px 30px;
+      border-radius: 0 0 10px 10px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    .status-box {
+      background-color: #f5f0ff;
+      border-left: 4px solid #6a11cb;
+      padding: 20px;
+      margin: 20px 0;
+      border-radius: 5px;
+    }
+    .status-detail {
+      margin-bottom: 8px;
+      font-size: 15px;
+    }
+    .status-detail strong {
+      color: #6a11cb;
+      width: 140px;
+      display: inline-block;
+    }
+    .status-highlight {
+      display: inline-block;
+      background-color: #6a11cb;
+      color: white;
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: bold;
+      margin-top: 5px;
+    }
+    .button {
+      display: inline-block;
+      background: linear-gradient(135deg, #6a11cb, #8e44ad);
+      color: white;
+      text-decoration: none;
+      padding: 14px 30px;
+      border-radius: 50px;
+      font-weight: bold;
+      margin-top: 20px;
+      transition: transform 0.3s;
+    }
+    .button:hover {
+      transform: translateY(-2px);
+    }
+    .footer {
+      text-align: center;
+      margin-top: 30px;
+      font-size: 14px;
+      color: #777;
+    }
+    .social-links {
+      margin-top: 20px;
+    }
+    .social-links a {
+      display: inline-block;
+      margin: 0 8px;
+      color: #6a11cb;
+      font-size: 18px;
+      text-decoration: none;
+    }
+    .divider {
+      height: 1px;
+      background-color: #eee;
+      margin: 25px 0;
+    }
+    .timeline {
+      margin: 30px 0;
+      position: relative;
+      padding-left: 30px;
+    }
+    .timeline:before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 2px;
+      background: linear-gradient(to bottom, #6a11cb, #8e44ad);
+    }
+    .timeline-item {
+      position: relative;
+      margin-bottom: 20px;
+    }
+    .timeline-item:before {
+      content: '';
+      position: absolute;
+      left: -36px;
+      top: 0;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background-color: #6a11cb;
+      border: 2px solid #fff;
+      box-shadow: 0 0 0 3px rgba(106, 17, 203, 0.2);
+    }
+    .timeline-date {
+      font-size: 12px;
+      color: #8e44ad;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+    .timeline-content {
+      padding: 10px 15px;
+      background-color: #f5f0ff;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Transaction Update</h1>
+    </div>
+    <div class="content">
+      <p>Hello {{name}},</p>
+      
+      <p>We're writing to inform you that your transaction for <strong>{{eventName}}</strong> has been updated.</p>
+      
+      <div class="status-box">
+        <h3 style="color: #6a11cb; margin-top: 0;">Current Transaction Status</h3>
+        <div class="status-detail"><strong>Event:</strong> {{eventName}}</div>
+        <div class="status-detail"><strong>Transaction ID:</strong> {{transactionId}}</div>
+        <div class="status-detail"><strong>Order Date:</strong> {{orderDate}}</div>
+        <div class="status-detail"><strong>Total Amount:</strong> {{orderTotal}}</div>
+        <div class="status-detail">
+          <strong>Current Status:</strong> 
+          <span class="status-highlight">{{currentStatus}}</span>
+        </div>
+      </div>
+      
+      <p>Your transaction status has been updated to <strong>{{currentStatus}}</strong>. {{statusExplanation}}</p>
+      
+      <div class="timeline">
+        <h3 style="color: #6a11cb; margin-top: 0;">Transaction Timeline</h3>
+        
+        <div class="timeline-item">
+          <div class="timeline-date">{{createdDate}}</div>
+          <div class="timeline-content">
+            Transaction created
+          </div>
+        </div>
+        
+        <div class="timeline-item">
+          <div class="timeline-date">{{processingDate}}</div>
+          <div class="timeline-content">
+            Payment processing initiated
+          </div>
+        </div>
+        
+        <div class="timeline-item">
+          <div class="timeline-date">{{currentDate}}</div>
+          <div class="timeline-content">
+            Status updated to: {{currentStatus}}
+          </div>
+        </div>
+      </div>
+      
+      <div style="text-align: center;">
+        <a href="{{transactionUrl}}" class="button">View Transaction Details</a>
+      </div>
+      
+      <div class="divider"></div>
+      
+      <p>If you have any questions about this update or need further assistance, please don't hesitate to contact our support team.</p>
+      
+      <p>Best regards,<br>The {{companyName}} Team</p>
+    </div>
+    
+    <div class="footer">
+      <p>© {{currentYear}} {{companyName}}. All rights reserved.</p>
+      <p>{{companyAddress}}</p>
+      <div class="social-links">
+        <a href="{{facebookUrl}}">Facebook</a> • 
+        <a href="{{instagramUrl}}">Instagram</a> • 
+        <a href="{{twitterUrl}}">Twitter</a>
+      </div>
+      <p style="margin-top: 20px; font-size: 12px;">This is an automated message. Please do not reply directly to this email.</p>
+    </div>
+  </div>
+</body>
+</html>
