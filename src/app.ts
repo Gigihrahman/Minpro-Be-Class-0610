@@ -18,6 +18,7 @@ import { TransactionRouter } from "./modules/transaction/transaction.router";
 import { VoucherRouter } from "./modules/voucher/voucher.router";
 import { DashboardRouter } from "./modules/statistics/dashboard.router";
 import { FotoProfileRouter } from "./modules/fotoprofile/fotoprofile.router";
+import { DiscountRouter } from "./modules/discount/discount.router";
 
 export class App {
   public app: Express;
@@ -46,7 +47,7 @@ export class App {
     const transactionRouter = container.resolve(TransactionRouter);
     const dashboardRouter = container.resolve(DashboardRouter);
     const fotoProfileRouter = container.resolve(FotoProfileRouter);
-
+    const discountRouter = container.resolve(DiscountRouter);
     const reviewRouter = container.resolve(ReviewRouter);
 
     this.app.use("/samples", sampleRouter.getRouter());
@@ -61,6 +62,8 @@ export class App {
     this.app.use("/dashboard", dashboardRouter.getRouter());
     this.app.use("/fotoprofile", fotoProfileRouter.getRouter());
     this.app.use("/reviews", reviewRouter.getRouter());
+
+    this.app.use("/discount", discountRouter.getRouter());
   }
 
   private handleError() {
