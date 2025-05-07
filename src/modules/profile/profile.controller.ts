@@ -2,6 +2,7 @@ import { injectable } from "tsyringe";
 import { NextFunction, Request, Response } from "express";
 import { ApiError } from "../../utils/api-error";
 import { ProfileService } from "./profile.service";
+import { UpdateOrganizerProfileDTO } from "./dto/update-profile-organizer.dto";
 
 @injectable()
 export class ProfileController {
@@ -25,6 +26,30 @@ export class ProfileController {
         profilePicture,
         res.locals.user.id
       );
+      res.status(200).send(result);
+    } catch (error) {
+      next(error);
+    }
+  };
+  updateProfileOrganizer = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      // Get the user ID from the JWT token/session
+      const userId = res.locals.user.id;
+
+      // Validate input using class-validator (this should be done in middleware)
+      const updateData: UpdateOrganizerProfileDTO = req.body;
+
+      // Call the service to update the profile
+      const result = await this.profileService.updateProfileOrganizer(
+        userId,
+        updateData
+      );
+
+      // Return success response
       res.status(200).send(result);
     } catch (error) {
       next(error);

@@ -43,7 +43,6 @@ export class RegisterOrganizerDTO {
 
   @IsNotEmpty()
   @IsString()
-  @Matches(/^\d+$/, { message: "please enter only number" })
   readonly norek!: string;
 
   @IsOptional()
