@@ -17,6 +17,7 @@ import { SeatRouter } from "./modules/seat/seat.router";
 import { TransactionRouter } from "./modules/transaction/transaction.router";
 import { VoucherRouter } from "./modules/voucher/voucher.router";
 import { DashboardRouter } from "./modules/statistics/dashboard.router";
+import { FotoProfileRouter } from "./modules/fotoprofile/fotoprofile.router";
 
 export class App {
   public app: Express;
@@ -44,6 +45,7 @@ export class App {
     const voucherRouter = container.resolve(VoucherRouter);
     const transactionRouter = container.resolve(TransactionRouter);
     const dashboardRouter = container.resolve(DashboardRouter);
+    const fotoProfileRouter = container.resolve(FotoProfileRouter);
 
     const reviewRouter = container.resolve(ReviewRouter);
 
@@ -57,7 +59,7 @@ export class App {
     this.app.use("/vouchers", voucherRouter.getRouter());
     this.app.use("/transactions", transactionRouter.getRouter());
     this.app.use("/dashboard", dashboardRouter.getRouter());
-
+    this.app.use("/fotoprofile", fotoProfileRouter.getRouter());
     this.app.use("/reviews", reviewRouter.getRouter());
   }
 
