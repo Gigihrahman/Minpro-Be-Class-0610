@@ -16,6 +16,7 @@ import { SampleRouter } from "./modules/sample/sample.router";
 import { SeatRouter } from "./modules/seat/seat.router";
 import { TransactionRouter } from "./modules/transaction/transaction.router";
 import { VoucherRouter } from "./modules/voucher/voucher.router";
+import { DiscountRouter } from "./modules/discount/discount.router";
 
 export class App {
   public app: Express;
@@ -42,7 +43,7 @@ export class App {
     const seatRouter = container.resolve(SeatRouter);
     const voucherRouter = container.resolve(VoucherRouter);
     const transactionRouter = container.resolve(TransactionRouter);
-
+    const discountRouter = container.resolve(DiscountRouter);
     const reviewRouter = container.resolve(ReviewRouter);
 
     this.app.use("/samples", sampleRouter.getRouter());
@@ -54,8 +55,9 @@ export class App {
     this.app.use("/seats", seatRouter.getRouter());
     this.app.use("/vouchers", voucherRouter.getRouter());
     this.app.use("/transactions", transactionRouter.getRouter());
-
     this.app.use("/reviews", reviewRouter.getRouter());
+
+    this.app.use("/discount", discountRouter.getRouter());
   }
 
   private handleError() {

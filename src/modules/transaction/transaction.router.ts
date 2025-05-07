@@ -34,7 +34,7 @@ export class TransactionRouter {
       this.transactionController.getTransactions
     );
     this.router.get(
-      "/",
+      "/user",
       this.jwtMiddleware.verifyToken(JWT_SECRET_KEY!),
       this.transactionController.getTransactionHistoryUser
     );
