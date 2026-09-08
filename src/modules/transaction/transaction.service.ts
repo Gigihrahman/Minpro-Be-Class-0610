@@ -590,7 +590,9 @@ export class TransactionService {
           paymentProofUrl: secure_url,
         },
       });
-      await userTransactionQueue.remove(transactions.uuid);
+      await userTransactionQueue.remove(transactions.uuid, {
+        removeChildren: false,
+      });
       await adminConfirmationQueue.add(
         "new-admin-confirmation",
         { uuid: transactions.uuid },
